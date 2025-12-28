@@ -4,7 +4,7 @@ from streamlit import header, pyplot
 import matplotlib.pyplot as plt
 import numpy as np
 st.set_page_config(page_title="Hacnker Posts page analysis", layout="wide")
-
+import os
 
 
 st.markdown("""
@@ -26,11 +26,29 @@ All findings are presented through an interactive Streamlit dashboard, allowing 
 
 st.title("Omar's Data Analysis p1")
 
-@st.cache_data
-def load_data():
-    return pd.read_csv("data/HN_posts_year_to_Sep_26_2016.csv")
+DATA_PATH = "data/HN_posts_year_to_Sep_26_2016.csv"
 
-df = load_data()
+@st.cache_data
+def load_df_from_path(path):
+    return pd.read_csv(path)
+
+@st.cache_data
+def load_df_from_upload(uploaded_file):
+    return pd.read_csv(uploaded_file)
+
+if os.path.exists(DATA_PATH):
+    df = load_df_from_path(DATA_PATH)
+else:
+    uploaded_file = st.file_uploader(
+        "Upload Hacker News CSV, (https://www.kaggle.com/datasets/hacker-news/hacker-news-posts?resource=download)",
+        type=["csv"]
+    )
+
+    if uploaded_file is None:
+        st.warning("Please upload the Hacker News dataset to continue.")
+        st.stop()
+
+    df = load_df_from_upload(uploaded_file)
 
 min_points = st.slider(
     "Minimum number of Points",
